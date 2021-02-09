@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: jboss/keycloak:latest
+    restart: on-failure
+    environment:
+      KEYCLOAK_USER: dev
+      KEYCLOAK_PASSWORD: 1234
+    ports:
+      - 8080:8080
+      - 8443:8443
