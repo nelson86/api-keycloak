@@ -1,12 +1,44 @@
 version: '3.8'
 
 services:
+  mariadb:
+    container_name: db_keycloak
+    image: mariadb:10.5
+    restart: on-failure
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: abc123
+    ports:
+      - 9001:3306
+    networks:
+      - "keycloak_network"
+    volumes:
+      - /home/nelson/docker_volumes/keycloak:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+
   keycloak:
+    container_name: keycloak
     image: jboss/keycloak:latest
     restart: on-failure
     environment:
       KEYCLOAK_USER: dev
       KEYCLOAK_PASSWORD: 1234
+      DB_VENDOR: mariadb
+      DB_ADDR: mariadb
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: abc123
+      JGROUPS_DISCOVERY_PROTOCOL: JDBC_PING
     ports:
       - 8080:8080
       - 8443:8443
+    networks:
+      - "keycloak_network"
+    depends_on:
+      - mariadb
+
+networks:
+  keycloak_network:
